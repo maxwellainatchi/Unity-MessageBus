@@ -1,0 +1,13 @@
+{
+    "name": "com.maxainatchi.messagebus",
+    "displayName": "Message Bus",
+    "version": "0.0.1",
+    "unity": "2019.1",
+    "description": "A custom message bus allowing for hierarchical message listening",
+    "keywords": [
+		"messagebus",
+		"messages",
+        "unity"
+    ],
+    "category": "Unity"
+}
