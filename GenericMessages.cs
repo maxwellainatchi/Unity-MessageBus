@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Message {
+namespace Messaging.Message {
     public static class MessageExtensionCaller {
         public static T registerLine<T>(this T t, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") where T: IMessage {
             t.callerInfo = new CallerInfo {
@@ -21,7 +21,7 @@ namespace Message {
             return $"<b>{System.IO.Path.GetFileName(file)}@{line} (in {funcName})</b>";
         }
     }
-	public abstract class IMessage {
+    public abstract class IMessage {
         public CallerInfo callerInfo;
         public virtual UpdateStage getUpdateStage() { return UpdateStage.Update; }
         override public string ToString() {
@@ -32,7 +32,7 @@ namespace Message {
             return str;
         }
     }
-	public class AllType: IMessage { }
+    public class Any: IMessage { }
 
     namespace Info {
         public abstract class InfoBase: IMessage {
@@ -50,4 +50,4 @@ namespace Message {
         public class Warning: InfoBase { public Warning(object caller, string message, object value = null) { this.level = 2; this.caller = caller; this.message = message; this.associatedValue = value; } }
         public class Error: InfoBase { public Error(object caller, string message, object value = null) { this.level = 3; this.caller = caller; this.message = message; this.associatedValue = value; } }
     }
-}
+} // End Namespaces

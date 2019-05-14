@@ -1,40 +1,42 @@
 using System.Collections.Generic;
 
-public interface MessageSink {
-    void outputMessage(string message);
-}
-
-[System.Serializable]
-public class MessageSinkHandler: MessageHandler {
-    MessageSink sink;
-
-    public MessageSinkHandler(MessageSink sink) {
-        this.sink = sink;
-        MessageBus.main.register<Message.AllType>(this);
+namespace Messaging {
+    public interface MessageSink {
+        void outputMessage(string message);
     }
 
-    ~MessageSinkHandler() {
-        MessageBus.main.deregister<Message.AllType>(this);
+    [System.Serializable]
+    public class MessageSinkHandler: Messaging.Handler {
+        MessageSink sink;
+
+        public MessageSinkHandler(MessageSink sink) {
+            this.sink = sink;
+            Messaging.Bus.main.register<Message.Any>(this);
+        }
+
+        ~MessageSinkHandler() {
+            Messaging.Bus.main.deregister<Message.Any>(this);
+        }
+
+        public void handleMessage<T>(T m) where T: Message.IMessage {
+            this.sink.outputMessage(m.ToString());
+        }
     }
 
-    public void handleMessage<T>(T m) where T: Message.IMessage {
-        this.sink.outputMessage(m.ToString());
-    }
-}
+    public class MessageErrorSinkHandler {
+        MessageSink sink;
 
-public class MessageErrorSinkHandler {
-    MessageSink sink;
+        public MessageErrorSinkHandler(MessageSink sink) {
+            this.sink = sink;
+            Messaging.Bus.main.errorHandlers.Add(this.outputMessageHandlerError);
+        }
 
-    public MessageErrorSinkHandler(MessageSink sink) {
-        this.sink = sink;
-        MessageBus.main.errorHandlers.Add(this.outputMessageHandlerError);
-    }
+        ~MessageErrorSinkHandler() {
+            Messaging.Bus.main.errorHandlers.Remove(this.outputMessageHandlerError);
+        }
 
-    ~MessageErrorSinkHandler() {
-        MessageBus.main.errorHandlers.Remove(this.outputMessageHandlerError);
-    }
-
-    public void outputMessageHandlerError(System.Exception e, Message.IMessage message) {
-        this.sink.outputMessage($"Error handling {message.ToString()}: ${e.ToString()}");
+        public void outputMessageHandlerError(System.Exception e, Message.IMessage message) {
+            this.sink.outputMessage($"Error handling {message.ToString()}: ${e.ToString()}");
+        }
     }
 }
