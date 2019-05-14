@@ -169,3 +169,5 @@ To use it, simply add it to somewhere in the scene. If it is disabled/inactive, 
 - [ ] Make emission be a property of the message, so that messages can be associated with given message buses.
 - [ ] Allow hierarchical message listens, so if you have `ChildMessage` extending from `BaseMessage` extending from `Message.IMessage`, you can register a listener on `BaseMessage` and get notifications for all `ChildMessage` and `BaseMessage` events.
 - [ ] Possible: Allow update stages to be overridden on emit for an individual emission.
+- [ ] Add better error handling
+- [ ] Add message responses
