@@ -118,24 +118,40 @@ namespace Messaging {
 
 		public void _sendMessageToHandlers(Message.IMessage msg) {
 			msg.callerInfo.sentAt = System.DateTime.Now;
+			System.Action<System.Exception> errorHandler = (exception) => {
+				foreach (var handler in this.errorHandlers) {
+					handler(exception, msg);
+				} // TODO: Handle errors better
+			};
+
 			System.Action<IHandler> runHandler = (handler) => {
 				try {
 					handler.handleMessage(msg);
 				} catch (System.Exception err) {
-					foreach (var errorHandler in this.errorHandlers) {
-						errorHandler(err, msg);
-					}
+					errorHandler(err);
 				} // TODO: Catch errors
 			};
+
+			bool didHaveHandler = false;
 			if (this.handlers.ContainsKey(msg.GetType())) {
+				didHaveHandler = true;
 				foreach (IHandler handler in this.handlers[msg.GetType()]) {
 					runHandler(handler);
 				}
+			} else if (msg.requireListener() == Message.IMessage.RequireListenerOption.Specific) {
+				errorHandler(new System.Exception("No specific listener for message " + msg.GetType().Name));
 			}
 			if (this.handlers.ContainsKey(typeof(Message.Any))) {
+				didHaveHandler = true;
 				foreach (IHandler handler in this.handlers[typeof(Message.Any)]) {
 					runHandler(handler);
 				}
+			} else if (msg.requireListener() == Message.IMessage.RequireListenerOption.Generic) {
+				errorHandler(new System.Exception("No generic listener for message " + msg.GetType().Name));
+			}
+
+			if (msg.requireListener() == Message.IMessage.RequireListenerOption.Any && !didHaveHandler) {
+				errorHandler(new System.Exception("No listener for message " + msg.GetType().Name));
 			}
 		}
 	}
