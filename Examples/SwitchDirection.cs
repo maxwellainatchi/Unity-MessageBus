@@ -38,6 +38,6 @@ public class SwitchDirection : MonoBehaviour
     public void DidClickButton()
     {
         // emit a new change message when the button is clicked.
-        Messaging.Bus.main.emit(new ShouldChange());
+        new ShouldChange().emitSelf();
     }
 }

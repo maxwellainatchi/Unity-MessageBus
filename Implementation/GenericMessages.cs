@@ -29,6 +29,7 @@ namespace Messaging.Message {
 
         public virtual UpdateStage getUpdateStage() { return UpdateStage.Update; }
         public virtual RequireListenerOption requireListener() { return RequireListenerOption.Typed; }
+        public virtual Bus getDefaultBus() { return Bus.main; }
 
         override public string ToString() {
             string str = $"[On <i>{this.getUpdateStage()}</i>] {this.GetType()}";
@@ -36,6 +37,13 @@ namespace Messaging.Message {
                 str = callerInfo.ToString() + ": " + str;
             }
             return str;
+        }
+
+        public void emitSelf(Bus bus = null, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
+            if (bus == null) {
+                bus = this.getDefaultBus();
+            }
+            bus.emit(this, line, file, funcName);
         }
     }
     public class Any: IMessage { }

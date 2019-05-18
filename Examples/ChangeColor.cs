@@ -52,7 +52,7 @@ public class ChangeColor : MonoBehaviour
 		// Get the color represented by the dropdown.
 		Color color = this.colorForSelection(index);
 		// Emit a new message with the given color.
-        Messaging.Bus.main.emit(new ShouldChange(color));
+        new ShouldChange(color).emitSelf();
     }
 
 	// Figures out which color is represented, given its index in the dropdown.
