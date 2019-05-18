@@ -196,3 +196,4 @@ To use it, simply add it to somewhere in the scene. If it is disabled/inactive, 
 - [ ] Possible: Allow update stages to be overridden on emit for an individual emission.
 - [ ] Add better error handling
 - [ ] Add message responses
+- [ ] Add rate limits to `MessageBusUpdater`

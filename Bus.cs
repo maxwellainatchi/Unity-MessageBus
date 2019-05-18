@@ -101,8 +101,14 @@ namespace Messaging {
 
 		}
 
-		public void emit(Message.IMessage m) {
+		public void emit(Message.IMessage m, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
 			lock (this) {
+				m.callerInfo = new Message.CallerInfo {
+					line = line,
+					file = file,
+					funcName = funcName,
+					emittedAt = System.DateTime.Now
+				};
 				var stage = m.getUpdateStage();
 				if (stage == UpdateStage.Immediate) {
 					this._sendMessageToHandlers(m);
@@ -112,12 +118,8 @@ namespace Messaging {
 			}
 		}
 
-		public void _sendMessageToHandlers(Message.IMessage m, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			m.callerInfo = new Message.CallerInfo {
-				line = line,
-				file = file,
-				funcName = funcName
-			};
+		public void _sendMessageToHandlers(Message.IMessage m) {
+			m.callerInfo.sentAt = System.DateTime.Now;
 			System.Action<IHandler> runHandler = (handler) => {
 				try {
 					handler.handleMessage(m);
