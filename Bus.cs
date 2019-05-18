@@ -101,34 +101,34 @@ namespace Messaging {
 
 		}
 
-		public void emit(Message.IMessage m, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			m.callerInfo = new Message.CallerInfo {
+		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
+			msg.callerInfo = new Message.CallerInfo {
 				line = line,
 				file = file,
 				funcName = funcName,
 				emittedAt = System.DateTime.Now
 			};
-			var stage = m.getUpdateStage();
+			var stage = msg.getUpdateStage();
 			if (stage == UpdateStage.Immediate) {
-				this._sendMessageToHandlers(m);
+				this._sendMessageToHandlers(msg);
 			} else {
-				BusUpdater.AddMessage(m);
+				BusUpdater.AddMessage(msg);
 			}
 		}
 
-		public void _sendMessageToHandlers(Message.IMessage m) {
-			m.callerInfo.sentAt = System.DateTime.Now;
+		public void _sendMessageToHandlers(Message.IMessage msg) {
+			msg.callerInfo.sentAt = System.DateTime.Now;
 			System.Action<IHandler> runHandler = (handler) => {
 				try {
-					handler.handleMessage(m);
-				} catch (System.Exception e) {
+					handler.handleMessage(msg);
+				} catch (System.Exception err) {
 					foreach (var errorHandler in this.errorHandlers) {
-						errorHandler(e, m);
+						errorHandler(err, msg);
 					}
 				} // TODO: Catch errors
 			};
-			if (this.handlers.ContainsKey(m.GetType())) {
-				foreach (IHandler handler in this.handlers[m.GetType()]) {
+			if (this.handlers.ContainsKey(msg.GetType())) {
+				foreach (IHandler handler in this.handlers[msg.GetType()]) {
 					runHandler(handler);
 				}
 			}
