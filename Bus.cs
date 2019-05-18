@@ -102,19 +102,17 @@ namespace Messaging {
 		}
 
 		public void emit(Message.IMessage m, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			lock (this) {
-				m.callerInfo = new Message.CallerInfo {
-					line = line,
-					file = file,
-					funcName = funcName,
-					emittedAt = System.DateTime.Now
-				};
-				var stage = m.getUpdateStage();
-				if (stage == UpdateStage.Immediate) {
-					this._sendMessageToHandlers(m);
-				} else {
-					BusUpdater.AddMessage(m);
-				}
+			m.callerInfo = new Message.CallerInfo {
+				line = line,
+				file = file,
+				funcName = funcName,
+				emittedAt = System.DateTime.Now
+			};
+			var stage = m.getUpdateStage();
+			if (stage == UpdateStage.Immediate) {
+				this._sendMessageToHandlers(m);
+			} else {
+				BusUpdater.AddMessage(m);
 			}
 		}
 
