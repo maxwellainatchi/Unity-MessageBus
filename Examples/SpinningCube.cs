@@ -21,6 +21,4 @@ public class SpinningCube : MonoBehaviour
         this.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, 2);
         this.GetComponent<MeshRenderer>().material.color = Color.red;
     }
-
-    
 }
