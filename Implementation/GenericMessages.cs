@@ -24,11 +24,11 @@ namespace Messaging.Message {
         }
     }
     public abstract class IMessage {
-        public enum RequireListenerOption { No, Specific, Generic, Any }
+        public enum RequireListenerOption { No, Typed, Untyped, Any }
         public CallerInfo callerInfo;
 
         public virtual UpdateStage getUpdateStage() { return UpdateStage.Update; }
-        public virtual RequireListenerOption requireListener() { return RequireListenerOption.Specific; }
+        public virtual RequireListenerOption requireListener() { return RequireListenerOption.Typed; }
 
         override public string ToString() {
             string str = $"[On <i>{this.getUpdateStage()}</i>] {this.GetType()}";
