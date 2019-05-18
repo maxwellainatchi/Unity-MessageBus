@@ -47,8 +47,8 @@ namespace Messaging {
 			}
 		}
 
-		public static void AddMessage(Message.IMessage m) {
-			BusUpdater.instance.messageQueues[m.getUpdateStage()].Enqueue(m);
+		public static void AddMessage(Message.IMessage msg) {
+			BusUpdater.instance.messageQueues[msg.getUpdateStage()].Enqueue(msg);
 		} 
 	}
 }
