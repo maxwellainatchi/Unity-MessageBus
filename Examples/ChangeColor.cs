@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ChangeColor : MonoBehaviour
 {
 	// This class is the message that will be emitted. It also includes a default handler, which isn't required.
-    public class ShouldChange: Message.IMessage 
+    public class ShouldChange: Messaging.Message.IMessage 
     {
 		// The color to change to.
 		public Color color;
@@ -18,7 +18,7 @@ public class ChangeColor : MonoBehaviour
 		}
 
 		// The default handler just changes the material color.
-        public class Handler: MessageHandler<ShouldChange>
+        public class Handler: Messaging.Handler<ShouldChange>
         {
 			// It requires a renderer to change the color.
             public Renderer renderer;
@@ -30,7 +30,7 @@ public class ChangeColor : MonoBehaviour
             }
 
 			// When the message is handled, change the color to the message color.
-            public override void handleTypedMessage(ShouldChange msg)
+            public override void handleMessage(ShouldChange msg)
             {
                 this.renderer.material.color = msg.color;
             }
@@ -52,7 +52,7 @@ public class ChangeColor : MonoBehaviour
 		// Get the color represented by the dropdown.
 		Color color = this.colorForSelection(index);
 		// Emit a new message with the given color.
-        MessageBus.main.emit(new ShouldChange(color));
+        Messaging.Bus.main.emit(new ShouldChange(color));
     }
 
 	// Figures out which color is represented, given its index in the dropdown.
