@@ -188,12 +188,3 @@ Messaging.Bus.main.register<Messaging.Message.Any>(someMessageHandler);
 For debugging purposes, logging messages can be handy. `Messaging.MessageLogger` is a `MonoBehaviour` that logs all messages to the Unity console.
 
 To use it, simply add it to somewhere in the scene. If it is disabled/inactive, it will stop listening/logging messages.
-
-## To-Do
-
-- [ ] Make emission be a property of the message, so that messages can be associated with given message buses.
-- [ ] Allow hierarchical message listens, so if you have `ChildMessage` extending from `BaseMessage` extending from `Messaging.Message.IMessage`, you can register a listener on `BaseMessage` and get notifications for all `ChildMessage` and `BaseMessage` events.
-- [ ] Possible: Allow update stages to be overridden on emit for an individual emission.
-- [ ] Add better error handling
-- [ ] Add message responses
-- [ ] Add rate limits to `MessageBusUpdater`
