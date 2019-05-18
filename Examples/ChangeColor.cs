@@ -30,7 +30,7 @@ public class ChangeColor : MonoBehaviour
             }
 
 			// When the message is handled, change the color to the message color.
-            public override void handleTypedMessage(ShouldChange msg)
+            public override void handleMessage(ShouldChange msg)
             {
                 this.renderer.material.color = msg.color;
             }

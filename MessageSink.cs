@@ -6,16 +6,16 @@ namespace Messaging {
     }
 
     [System.Serializable]
-    public class MessageSinkHandler: Messaging.Handler {
+    public class MessageSinkHandler: Messaging.IHandler {
         MessageSink sink;
 
         public MessageSinkHandler(MessageSink sink) {
             this.sink = sink;
-            Messaging.Bus.main.register<Message.Any>(this);
+            Messaging.Bus.main.registerUnsafely<Message.Any>(this);
         }
 
         ~MessageSinkHandler() {
-            Messaging.Bus.main.deregister<Message.Any>(this);
+            Messaging.Bus.main.deregisterUnsafely<Message.Any>(this);
         }
 
         public void handleMessage<T>(T m) where T: Message.IMessage {

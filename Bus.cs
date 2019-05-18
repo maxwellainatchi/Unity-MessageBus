@@ -10,11 +10,15 @@ namespace Messaging {
 		FixedUpdate,
 	}
 
-	public interface Handler {
-		void handleMessage<T>(T m) where T: Message.IMessage;
+	public interface IHandler {
+		void handleMessage<T>(T msg) where T: Message.IMessage;
 	}
 
-	public abstract class Handler<T>: Handler where T: Message.IMessage {
+	public interface IHandler<T>: IHandler where T: Message.IMessage {
+		void handleMessage(T msg);
+	}
+
+	public abstract class Handler<T>: IHandler<T> where T: Message.IMessage {
 		Bus bus;
 		public Handler(Bus bus = null) {
 			this.bus = bus != null ? bus : Bus.main;
@@ -25,10 +29,10 @@ namespace Messaging {
 			this.bus.deregister<T>(this);
 		}
 
-		public abstract void handleTypedMessage(T m);
-		public virtual void handleMessage<X>(X m) where X: Message.IMessage {
-			if (m is T) {
-				this.handleTypedMessage(m as T);
+		public abstract void handleMessage(T msg);
+		public virtual void handleMessage<X>(X msg) where X: Message.IMessage {
+			if (msg is T) {
+				this.handleMessage(msg as T);
 			}
 		}
 	}
@@ -46,40 +50,48 @@ namespace Messaging {
 
 		public List<System.Action<System.Exception, Message.IMessage>> errorHandlers;
 		
-		public System.Type[] messages;
+		// public System.Type[] messages;
 
 		Bus() {
 			this.errorHandlers = new List<System.Action<System.Exception, Message.IMessage>>();
-			this.messages = (from domainAssembly in System.AppDomain.CurrentDomain.GetAssemblies()
-						from assemblyType in domainAssembly.GetTypes()
-						where typeof(Message.IMessage).IsAssignableFrom(assemblyType)
-						&& !(assemblyType.ToString().Contains("IMessage") || 
-							assemblyType.ToString().Contains("Base") ||
-							assemblyType.ToString().Contains("AllType"))
-						select assemblyType).ToArray();
+			// this.messages = (from domainAssembly in System.AppDomain.CurrentDomain.GetAssemblies()
+			// 			from assemblyType in domainAssembly.GetTypes()
+			// 			where typeof(Message.IMessage).IsAssignableFrom(assemblyType)
+			// 			&& !(assemblyType.ToString().Contains("IMessage") || 
+			// 				assemblyType.ToString().Contains("Base") ||
+			// 				assemblyType.ToString().Contains("AllType"))
+			// 			select assemblyType).ToArray();
 		}
 
-		public Dictionary<System.Type, List<Handler>> handlers = new Dictionary<System.Type, List<Handler>>();
+		public Dictionary<System.Type, List<IHandler>> handlers = new Dictionary<System.Type, List<IHandler>>();
 
-		public void register<T>(Handler handler) where T: Message.IMessage {
-			this.register(typeof(T), handler);
+		public void register<T>(IHandler<T> handler) where T: Message.IMessage {
+			this.registerUnsafely(typeof(T), handler);
 		}
 
-		public void register(System.Type type, Handler handler) {
+		public void registerUnsafely<T>(IHandler handler) where T: Message.IMessage {
+			this.registerUnsafely(typeof(T), handler);
+		}
+
+		public void registerUnsafely(System.Type type, IHandler handler) {
 			if (!(type.IsSubclassOf(typeof(Message.IMessage)))) {
 				throw new System.Exception();
 			}
 			if (!this.handlers.ContainsKey(type)) {
-				this.handlers[type] = new List<Handler>();
+				this.handlers[type] = new List<IHandler>();
 			}
 			this.handlers[type].Add(handler);
 		}
 
-		public void deregister<T>(Handler handler) where T: Message.IMessage {
-			this.deregister(typeof(T), handler);
+		public void deregister<T>(IHandler<T> handler) where T: Message.IMessage {
+			this.deregisterUnsafely(typeof(T), handler);
 		}
 
-		public void deregister(System.Type type, Handler handler) {
+		public void deregisterUnsafely<T>(IHandler handler) where T: Message.IMessage {
+			this.deregisterUnsafely(typeof(T), handler);
+		}
+
+		public void deregisterUnsafely(System.Type type, IHandler handler) {
 			if (!(type.IsSubclassOf(typeof(Message.IMessage)))) {
 				throw new System.Exception();
 			}
@@ -106,7 +118,7 @@ namespace Messaging {
 				file = file,
 				funcName = funcName
 			};
-			System.Action<Handler> runHandler = (handler) => {
+			System.Action<IHandler> runHandler = (handler) => {
 				try {
 					handler.handleMessage(m);
 				} catch (System.Exception e) {
@@ -116,12 +128,12 @@ namespace Messaging {
 				} // TODO: Catch errors
 			};
 			if (this.handlers.ContainsKey(m.GetType())) {
-				foreach (Handler handler in this.handlers[m.GetType()]) {
+				foreach (IHandler handler in this.handlers[m.GetType()]) {
 					runHandler(handler);
 				}
 			}
 			if (this.handlers.ContainsKey(typeof(Message.Any))) {
-				foreach (Handler handler in this.handlers[typeof(Message.Any)]) {
+				foreach (IHandler handler in this.handlers[typeof(Message.Any)]) {
 					runHandler(handler);
 				}
 			}

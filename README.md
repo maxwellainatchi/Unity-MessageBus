@@ -65,7 +65,7 @@ Messages sent on `Update`, `LateUpdate`, or `FixedUpdate` will preserve order of
 
 ### Registering/Deregistering a message handler
 
-Any message handler must conform to `Messaging.Handler`.  More about message handlers in the next section.
+Any message handler must conform to `Messaging.IHandler`.  More about message handlers in [the next section](#Handling messages).
 
 To begin receiving messages on `someMessageHandler`:
 
@@ -79,6 +79,8 @@ To stop receiving messages:
 Messaging.Bus.main.deregister<SomeMessage>(someMessageHandler);
 ```
 
+There are also a few variants: `registerUnsafely<T>(IHandler handler)` and `deregisterUnsafely<T>(IHandler handler)` allow you to register/deregister an [untyped message handler](#Untyped message handlers), and `registerUnsafely(Type type, IHandler handler)` and `registerUnsafely(Type type, IHandler handler)` allow you to register message types dynamically.
+
 ### Handling messages
 
 There are 2 ways of handling a message, typed or untyped. 
@@ -87,11 +89,27 @@ There are 2 ways of handling a message, typed or untyped.
 
 This is the recommended way.
 
-If you want to handle messages individually, the best way to do that is to make a typed message handler. This will automatically manage registering and deregistering on the main message bus during the lifetime of the handler, which means that if you want to remove/replace the message handler, you can safely just replace the variable it's stored in and garbage collection will do the rest.
+If you know which messages you want to handle at compile-time, typed message handlers provide additional stability and less boilerplate to access the data contained within the message.
 
 ```C#
-public class MessageWithDataHandler: Messaging.Bus.MessageHandler<MessageWithData> {
-    override public void handleTypedMessage(MessageWithData msg) {
+public class MessageWithDataHandler1: Messaging.IHandler<MessageWithData> {
+    override public void handleMessage(MessageWithData msg) {
+        Debug.Log(msg.someValue);
+    }
+}
+```
+
+One class can have many different message handlers conforming to it; there must be a separate `handleMessage` for each type. This can also be defined on a `MonoBehaviour` safely. 
+
+##### `Messaging.Handler<T>`
+
+This is a convenience class that implements `Messaging.IHandler<T>`. 
+
+This will automatically manage registering and deregistering on the main message bus during the lifetime of the handler, which means that if you want to remove/replace the message handler, you can safely just replace the variable it's stored in and garbage collection will do the rest.
+
+```C#
+public class MessageWithDataHandler: Messaging.Handler<MessageWithData> {
+    override public void handleMessage(MessageWithData msg) {
         Debug.Log(msg.someValue);
     }
 }
@@ -101,7 +119,7 @@ public SomeClassListeningToMessageWithData: MonoBehaviour {
 }
 ```
 
-##### Using a custom message bus with typed message handlers
+##### Using a custom message bus with `Messaging.Handler<T>`
 
 Warning: This is not recommended, as it hasn't yet been tested and won't work with `MessageBusUpdater`. **Use with caution**.
 
@@ -123,24 +141,22 @@ public CustomMessageBusExample: MonoBehaviour {
 }
 ```
 
-
-
 #### Untyped message handlers
 
 Sometimes it's inconvenient to handle each message separately. Maybe you're writing a handler that has common code for handling multiple messages. In this case, you should use an untyped message handler. This can handle multiple messages, and is an interface so you can conform it to `MonoBehaviour`. 
 
-However, you will have to do type checking/casting yourself if you want to access properties on the message, and you need to register/deregister the listener yourself.
+However, you will have to do type checking/casting yourself if you want to access properties on the message. Unlike with typed message handlers, there is no convenience class to automatically register/deregister the listeners. You also will have to use `registerUnsafely` to register the messages.
 
 ```C#
-public class ClassHandlingMultipleMessages: MonoBehaviour, Messaging.Handler {
+public class ClassHandlingMultipleMessages: MonoBehaviour, Messaging.IHandler {
     void OnEnable() {
-       	Messaging.Bus.main.register<SomeMessage>(this);
-        Messaging.Bus.main.register<MessageWithData>(this);
+       	Messaging.Bus.main.registerUnsafely<SomeMessage>(this);
+        Messaging.Bus.main.registerUnsafely<MessageWithData>(this);
     }
     
     void OnDisable() {
-        Messaging.Bus.main.register<SomeMessage>(this);
-        Messaging.Bus.main.deregister<SomeMessage>(this);
+        Messaging.Bus.main.deregisterUnsafely<SomeMessage>(this);
+        Messaging.Bus.main.deregisterUnsafely<MessageWithData>(this);
     }
     
     override public void handleMessage<T>(T msg) where T: Messaging.Message.IMessage {
@@ -155,6 +171,8 @@ public class ClassHandlingMultipleMessages: MonoBehaviour, Messaging.Handler {
     }
 }
 ```
+
+**NOTE**: you can not have one class be both a `Messaging.IHandler<T>` and a `Messaging.IHandler`! It _WILL_ break the typed messages.
 
 #### Listening for arbitrary messages
 

@@ -22,7 +22,7 @@ public class SwitchDirection : MonoBehaviour
             }
 
             // When receiving the message, swap the angular velocity.
-            public override void handleTypedMessage(ShouldChange msg)
+            public override void handleMessage(ShouldChange msg)
             {
                 rb.angularVelocity = -rb.angularVelocity;
             }
