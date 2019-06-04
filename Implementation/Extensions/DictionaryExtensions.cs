@@ -27,4 +27,8 @@ static class DictionaryExtensions2 {
 		return null;
 	}
 }
+
+[System.Serializable]
+public class UpdateStageUIntSerializableDictionary: SerializableDictionary<UpdateStage, uint> {}
+
 }

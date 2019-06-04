@@ -15,9 +15,9 @@ namespace Messaging {
 			[UpdateStage.LateUpdate] = new Queue<Message.IMessage>()
 		};
 
-		Dictionary<UpdateStage, uint> timeLimits = new Dictionary<UpdateStage, uint>();
+		public UpdateStageUIntSerializableDictionary timeLimits = new UpdateStageUIntSerializableDictionary();
 
-		Dictionary<UpdateStage, uint> countLimits = new Dictionary<UpdateStage, uint>();
+		public UpdateStageUIntSerializableDictionary countLimits = new UpdateStageUIntSerializableDictionary();
 
 		private void Awake() {
 			if (BusUpdater.instance == null) {

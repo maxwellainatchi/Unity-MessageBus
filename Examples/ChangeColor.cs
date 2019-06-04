@@ -51,14 +51,24 @@ public class ChangeColor : MonoBehaviour
 	{
 		// Get the color represented by the dropdown.
 		Color color = this.colorForSelection(index);
+
 		// Emit a new message with the given color.
-        new ShouldChange(color).emitSelf();
-    }
+		new ShouldChange(color).emitSelf();
+	}
+
+	public void ShouldChangeColor1000Times() {
+		for (int i = 0; i < 1000; ++i) {
+			// Get the color represented by the dropdown.
+			Color color = this.colorForSelection(Random.Range(0, 3));
+			// Emit a new message with the given color.
+        	new ShouldChange(color).emitSelf();
+		}
+	}
 
 	// Figures out which color is represented, given its index in the dropdown.
 	public Color colorForSelection(int index) {
 		if (index == 0) return Color.red;
 		if (index == 1) return Color.green;
-		/*if (index == 3)*/return Color.blue;
+		/*if (index == 2)*/return Color.blue;
 	}
 }
