@@ -5,14 +5,15 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class SpinningCube : MonoBehaviour
 {
-    SwitchDirection.ShouldChange.Handler directionHandler;
-    ChangeColor.ShouldChange.Handler colorHandler;
-
+    // The handlers must be held in memory or the deconstructor will kill the bus listener
+    List<Messaging.IHandler> handlers;
     private void Awake()
     {
         // Intiialize the handlers with what they need to effect their changes.
-        this.directionHandler = new SwitchDirection.ShouldChange.Handler(this.GetComponent<Rigidbody>());
-        this.colorHandler = new ChangeColor.ShouldChange.Handler(this.GetComponent<MeshRenderer>());
+        this.handlers = new List<Messaging.IHandler> {
+            new SwitchDirection.ShouldChange.Handler(this.GetComponent<Rigidbody>()),
+            new ChangeColor.ShouldChange.SetColorHandler(this.GetComponent<MeshRenderer>())
+        };
     }
     
     void Start()
