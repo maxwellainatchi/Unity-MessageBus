@@ -4,20 +4,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Messaging {
+	public enum UpdateStage {
+		Immediate,
+		Update,
+		LateUpdate,
+		FixedUpdate,
+	}
 
 	[ExecuteInEditMode]
 	public class BusUpdater : MonoBehaviour {
-		static BusUpdater instance;
+		public static BusUpdater instance { get; private set; }
 
-		Dictionary<UpdateStage, Queue<Message.IMessage>> messageQueues = new Dictionary<UpdateStage, Queue<Message.IMessage>> {
+		public UpdateStageUIntSerializableDictionary timeLimits = new UpdateStageUIntSerializableDictionary();
+		public UpdateStageUIntSerializableDictionary countLimits = new UpdateStageUIntSerializableDictionary();
+
+		private readonly Dictionary<UpdateStage, Queue<Message.IMessage>> messageQueues = new Dictionary<UpdateStage, Queue<Message.IMessage>> {
 			[UpdateStage.FixedUpdate] = new Queue<Message.IMessage>(),
 			[UpdateStage.Update] = new Queue<Message.IMessage>(),
 			[UpdateStage.LateUpdate] = new Queue<Message.IMessage>()
 		};
 
-		public UpdateStageUIntSerializableDictionary timeLimits = new UpdateStageUIntSerializableDictionary();
-
-		public UpdateStageUIntSerializableDictionary countLimits = new UpdateStageUIntSerializableDictionary();
+		// MARK: Monobehaviour
 
 		private void Awake() {
 			if (BusUpdater.instance == null) {
@@ -44,18 +51,20 @@ namespace Messaging {
 			this.sendMessageForStage(UpdateStage.LateUpdate);
 		}
 
-		void sendMessageForStage(UpdateStage stage) {
+		// MARK: Internal methods
+
+		private void sendMessageForStage(UpdateStage stage) {
 			System.DateTime startTime = System.DateTime.Now;
 			Queue<Message.IMessage> queue = this.messageQueues[stage];
-			float? timeLimit = this.timeLimits.TryGetValue(stage);
-			uint? countLimit = this.countLimits.TryGetValue(stage);
 			int count = 0;
-			System.Func<bool> test = () => {
+			System.Func<bool> isWithinLimits = () => {
+				float? timeLimit = this.timeLimits.TryGetValue(stage);
+				uint? countLimit = this.countLimits.TryGetValue(stage);
 				if (timeLimit.HasValue && (System.DateTime.Now - startTime).TotalMilliseconds > timeLimit.Value) return false;
 				if (countLimit.HasValue && count >= countLimit.Value) return false;
 				return queue.Count > 0;
 			};
-			while (test()) {
+			while (isWithinLimits()) {
 				Messaging.Bus.main._sendMessageToHandlers(queue.Dequeue());
 				count++;
 			}

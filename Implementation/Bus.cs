@@ -1,69 +1,14 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Messaging {
-	public enum UpdateStage {
-		Immediate,
-		Update,
-		LateUpdate,
-		FixedUpdate,
-	}
+	public partial class Bus {
+		public static readonly Bus main = new Bus();
 
-	public interface IHandler {
-		void handleMessage<T>(T msg) where T : Message.IMessage;
-	}
-
-	public interface IHandler<T> : IHandler where T : Message.IMessage {
-		void handleMessage(T msg);
-	}
-
-	public abstract class Handler<T> : IHandler<T> where T : Message.IMessage {
-		Bus bus;
-		public Handler(Bus bus = null) {
-			this.bus = bus != null ? bus : Bus.main;
-			this.bus.register<T>(this);
-		}
-
-		~Handler() {
-			this.bus.deregister<T>(this);
-		}
-
-		public abstract void handleMessage(T msg);
-		public virtual void handleMessage<X>(X msg) where X : Message.IMessage {
-			if (msg is T) {
-				this.handleMessage(msg as T);
-			}
-		}
-	}
-
-	public class Bus {
-		static Bus _main;
-		public static Bus main {
-			get {
-				if (Bus._main == null) {
-					Bus._main = new Bus();
-				}
-				return Bus._main;
-			}
-		}
-
-		public List<System.Action<System.Exception, Message.IMessage>> errorHandlers;
-
-		// public System.Type[] messages;
-
-		Bus() {
-			this.errorHandlers = new List<System.Action<System.Exception, Message.IMessage>>();
-			// this.messages = (from domainAssembly in System.AppDomain.CurrentDomain.GetAssemblies()
-			// 			from assemblyType in domainAssembly.GetTypes()
-			// 			where typeof(Message.IMessage).IsAssignableFrom(assemblyType)
-			// 			&& !(assemblyType.ToString().Contains("IMessage") || 
-			// 				assemblyType.ToString().Contains("Base") ||
-			// 				assemblyType.ToString().Contains("AllType"))
-			// 			select assemblyType).ToArray();
-		}
-
+		public List<System.Action<System.Exception, Message.IMessage>> errorHandlers = new List<System.Action<System.Exception, Message.IMessage>>();
 		public Dictionary<System.Type, List<IHandler>> handlers = new Dictionary<System.Type, List<IHandler>>();
+
+		// MARK: register/unregister
 
 		public void register<T>(IHandler<T> handler) where T : Message.IMessage {
 			this.registerUnsafely(typeof(T), handler);
@@ -75,7 +20,7 @@ namespace Messaging {
 
 		public void registerUnsafely(System.Type type, IHandler handler) {
 			if (!(type.IsSubclassOf(typeof(Message.IMessage)))) {
-				throw new System.Exception();
+				throw new System.Exception("Can't register to a type that's not a subclass of Message.IMessage!");
 			}
 			if (!this.handlers.ContainsKey(type)) {
 				this.handlers[type] = new List<IHandler>();
@@ -101,6 +46,17 @@ namespace Messaging {
 
 		}
 
+		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
+			msg._registerCallerInfo(line, file, funcName);
+			this._emit(msg);
+		}
+
+		// MARK: Internal methods
+
+		/** Note: This is public simply to allow messages to emit themselves
+		 *  while correctly registering where they were emitted. This should be considered private for all
+		 *  intents and purposes.
+		 */
 		public void _emit(Message.IMessage msg) {
 			var stage = msg.getUpdateStage();
 			if (stage == UpdateStage.Immediate) {
@@ -110,11 +66,9 @@ namespace Messaging {
 			}
 		}
 
-		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			msg._registerCallerInfo(line, file, funcName);
-			this._emit(msg);
-		}
-
+		/** Note: this method is public simply to allow access from BusUpdater.
+		 *  This should be considered private for all intents and purposes.
+		 */
 		public void _sendMessageToHandlers(Message.IMessage msg) {
 			msg.callerInfo.sentAt = System.DateTime.Now;
 			System.Action<System.Exception> errorHandler = (exception) => {
