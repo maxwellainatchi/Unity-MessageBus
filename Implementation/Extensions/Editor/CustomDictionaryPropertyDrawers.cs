@@ -1,6 +1,6 @@
 using UnityEditor;
 
 namespace Messaging {
-[CustomPropertyDrawer(typeof(UpdateStageUIntSerializableDictionary))]
-public class UpdateStageUIntSerializableDictionaryCustomPropertyDrawer: SerializableDictionaryPropertyDrawer {}
+	[CustomPropertyDrawer(typeof(UpdateStageUIntSerializableDictionary))]
+	public class UpdateStageUIntSerializableDictionaryCustomPropertyDrawer : SerializableDictionaryPropertyDrawer { }
 }

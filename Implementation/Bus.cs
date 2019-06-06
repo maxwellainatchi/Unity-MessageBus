@@ -11,14 +11,14 @@ namespace Messaging {
 	}
 
 	public interface IHandler {
-		void handleMessage<T>(T msg) where T: Message.IMessage;
+		void handleMessage<T>(T msg) where T : Message.IMessage;
 	}
 
-	public interface IHandler<T>: IHandler where T: Message.IMessage {
+	public interface IHandler<T> : IHandler where T : Message.IMessage {
 		void handleMessage(T msg);
 	}
 
-	public abstract class Handler<T>: IHandler<T> where T: Message.IMessage {
+	public abstract class Handler<T> : IHandler<T> where T : Message.IMessage {
 		Bus bus;
 		public Handler(Bus bus = null) {
 			this.bus = bus != null ? bus : Bus.main;
@@ -30,7 +30,7 @@ namespace Messaging {
 		}
 
 		public abstract void handleMessage(T msg);
-		public virtual void handleMessage<X>(X msg) where X: Message.IMessage {
+		public virtual void handleMessage<X>(X msg) where X : Message.IMessage {
 			if (msg is T) {
 				this.handleMessage(msg as T);
 			}
@@ -40,7 +40,7 @@ namespace Messaging {
 	public class Bus {
 		static Bus _main;
 		public static Bus main {
-			get { 
+			get {
 				if (Bus._main == null) {
 					Bus._main = new Bus();
 				}
@@ -49,7 +49,7 @@ namespace Messaging {
 		}
 
 		public List<System.Action<System.Exception, Message.IMessage>> errorHandlers;
-		
+
 		// public System.Type[] messages;
 
 		Bus() {
@@ -65,11 +65,11 @@ namespace Messaging {
 
 		public Dictionary<System.Type, List<IHandler>> handlers = new Dictionary<System.Type, List<IHandler>>();
 
-		public void register<T>(IHandler<T> handler) where T: Message.IMessage {
+		public void register<T>(IHandler<T> handler) where T : Message.IMessage {
 			this.registerUnsafely(typeof(T), handler);
 		}
 
-		public void registerUnsafely<T>(IHandler handler) where T: Message.IMessage {
+		public void registerUnsafely<T>(IHandler handler) where T : Message.IMessage {
 			this.registerUnsafely(typeof(T), handler);
 		}
 
@@ -83,11 +83,11 @@ namespace Messaging {
 			this.handlers[type].Add(handler);
 		}
 
-		public void deregister<T>(IHandler<T> handler) where T: Message.IMessage {
+		public void deregister<T>(IHandler<T> handler) where T : Message.IMessage {
 			this.deregisterUnsafely(typeof(T), handler);
 		}
 
-		public void deregisterUnsafely<T>(IHandler handler) where T: Message.IMessage {
+		public void deregisterUnsafely<T>(IHandler handler) where T : Message.IMessage {
 			this.deregisterUnsafely(typeof(T), handler);
 		}
 
@@ -104,9 +104,9 @@ namespace Messaging {
 		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
 			msg.callerInfo = new Message.CallerInfo {
 				line = line,
-				file = file,
-				funcName = funcName,
-				emittedAt = System.DateTime.Now
+					file = file,
+					funcName = funcName,
+					emittedAt = System.DateTime.Now
 			};
 			var stage = msg.getUpdateStage();
 			if (stage == UpdateStage.Immediate) {

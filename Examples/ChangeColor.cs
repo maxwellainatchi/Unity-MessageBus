@@ -1,46 +1,41 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChangeColor: MonoBehaviour
-{
+public class ChangeColor : MonoBehaviour {
 	// This class is the message that will be emitted. It also includes a default handler, which isn't required.
-    public class ShouldChange: Messaging.Message.IMessage
-    {
+	public class ShouldChange : Messaging.Message.IMessage {
 		// The color to change to.
 		public Color color;
 		public bool isFinal;
 
 		// When the message is created, it needs to know what color to change to.
-		public ShouldChange(Color c)
-		{
+		public ShouldChange(Color c) {
 			this.color = c;
 		}
 
 		// The default handler just changes the material color.
-        public class SetColorHandler: Messaging.Handler<ShouldChange>
-        {
+		public class SetColorHandler : Messaging.Handler<ShouldChange> {
 			// It requires a renderer to change the color.
-            public Renderer renderer;
+			public Renderer renderer;
 			// IMPORTANT: overriding the MessageHandler<T> constructor, you need to call the superconstructor!
 			// Otherwise it won't register itself on the main MessageBus.
-            public SetColorHandler(Renderer renderer): base() 
-            {
-                this.renderer = renderer;
-            }
+			public SetColorHandler(Renderer renderer) : base() {
+				this.renderer = renderer;
+			}
 
 			// When the message is handled, change the color to the message color.
-            public override void handleMessage(ShouldChange msg)
-            {
-                this.renderer.material.color = msg.color;
-            }
-        }
+			public override void handleMessage(ShouldChange msg) {
+				this.renderer.material.color = msg.color;
+			}
+		}
 
-		public class SetIndexHandler: Messaging.Handler<ShouldChange> {
+		public class SetIndexHandler : Messaging.Handler<ShouldChange> {
 			public Dropdown dropdown;
 
-			public SetIndexHandler(Dropdown dropdown): base() {
+			public SetIndexHandler(Dropdown dropdown) : base() {
 				this.dropdown = dropdown;
 			}
 
@@ -51,11 +46,10 @@ public class ChangeColor: MonoBehaviour
 				this.dropdown.SetValueWithoutNotify(ChangeColor.indexForColor(msg.color));
 			}
 		}
-    }
-	
+	}
+
 	// The event listener. Emits a change color message when the dropdown changes.
-	public void ShouldChangeColor(int index)
-	{
+	public void ShouldChangeColor(int index) {
 		// Get the color represented by the dropdown.
 		Color color = ChangeColor.colorForIndex(index);
 
@@ -68,7 +62,7 @@ public class ChangeColor: MonoBehaviour
 			// Get the color represented by the dropdown.
 			Color color = ChangeColor.colorForIndex(Random.Range(0, 3));
 			// Emit a new message with the given color.
-        	new ShouldChange(color).emitSelf();
+			new ShouldChange(color).emitSelf();
 		}
 	}
 

@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
+using UnityEngine;
 
 namespace Messaging {
 
 	[ExecuteInEditMode]
-	public class BusUpdater: MonoBehaviour {
+	public class BusUpdater : MonoBehaviour {
 		static BusUpdater instance;
 
 		Dictionary<UpdateStage, Queue<Message.IMessage>> messageQueues = new Dictionary<UpdateStage, Queue<Message.IMessage>> {
@@ -36,7 +36,7 @@ namespace Messaging {
 		}
 
 		// Update is called once per frame
-		private void Update () {
+		private void Update() {
 			this.sendMessageForStage(UpdateStage.Update);
 		}
 
