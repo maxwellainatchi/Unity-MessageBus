@@ -1,17 +1,6 @@
 using System.Runtime.CompilerServices;
 
 namespace Messaging.Message {
-	public static class MessageExtensionCaller {
-		public static T registerLine<T>(this T t, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") where T : IMessage {
-			t.callerInfo = new CallerInfo {
-				line = line,
-					file = file,
-					funcName = funcName
-			};
-			return t;
-		}
-	}
-
 	public class CallerInfo {
 		public int line;
 		public string file;
