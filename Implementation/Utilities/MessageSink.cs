@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Messaging {
+namespace Messaging.Utilities {
 	public interface MessageSink {
 		void outputMessage(string message);
 	}

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Messaging {
+namespace Messaging.Utilities {
 	[ExecuteInEditMode]
 	public class MessageLogger : MonoBehaviour, MessageSink {
 		MessageSinkHandler sinkHandler;
