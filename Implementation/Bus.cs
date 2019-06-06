@@ -101,19 +101,18 @@ namespace Messaging {
 
 		}
 
-		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			msg.callerInfo = new Message.CallerInfo {
-				line = line,
-					file = file,
-					funcName = funcName,
-					emittedAt = System.DateTime.Now
-			};
+		public void _emit(Message.IMessage msg) {
 			var stage = msg.getUpdateStage();
 			if (stage == UpdateStage.Immediate) {
 				this._sendMessageToHandlers(msg);
 			} else {
 				BusUpdater.AddMessage(msg);
 			}
+		}
+
+		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
+			msg._registerCallerInfo(line, file, funcName);
+			this._emit(msg);
 		}
 
 		public void _sendMessageToHandlers(Message.IMessage msg) {

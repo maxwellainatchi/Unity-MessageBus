@@ -28,11 +28,21 @@ namespace Messaging.Message {
 			return str;
 		}
 
+		public void _registerCallerInfo(int line, string file, string funcName) {
+			this.callerInfo = new Message.CallerInfo {
+				line = line,
+				file = file,
+				funcName = funcName,
+				emittedAt = System.DateTime.Now
+			};
+		}
+
 		public void emitSelf(Bus bus = null, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
 			if (bus == null) {
 				bus = this.getDefaultBus();
 			}
-			bus.emit(this, line, file, funcName);
+			this._registerCallerInfo(line, file, funcName);
+			bus._emit(this);
 		}
 	}
 	public class Any : IMessage { }
