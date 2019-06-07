@@ -70,8 +70,10 @@ namespace Messaging {
 			}
 		}
 
+		// Note: This is public to allow Bus to make use of it and should
+		// be considered private for all intents and purposes
 		public static void AddMessage(Message.IMessage msg) {
-			BusUpdater.instance.messageQueues[msg.getUpdateStage()].Enqueue(msg);
+			BusUpdater.instance.messageQueues[msg.updateStage].Enqueue(msg);
 		}
 	}
 }

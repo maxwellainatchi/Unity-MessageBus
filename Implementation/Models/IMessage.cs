@@ -6,13 +6,13 @@ namespace Messaging.Message {
 		public CallerInfo callerInfo;
 
 		// These options can be overridden in derived classes to change how the message behaves by default
-		public virtual UpdateStage getUpdateStage() { return UpdateStage.Update; }
-		public virtual RequireListenerOption requireListener() { return RequireListenerOption.Typed; }
-		public virtual Bus getDefaultBus() { return Bus.main; }
+		public virtual UpdateStage updateStage { get { return UpdateStage.Update; } }
+		public virtual RequireListenerOption requireListener { get { return RequireListenerOption.Typed; } }
+		public virtual Bus defaultBus { get { return Bus.main; } }
 
 		public void emitSelf(Bus bus = null, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
 			if (bus == null) {
-				bus = this.getDefaultBus();
+				bus = this.defaultBus;
 			}
 			this._registerCallerInfo(line, file, funcName);
 			bus._emit(this);
@@ -21,7 +21,7 @@ namespace Messaging.Message {
 		// MARK: Utility
 
 		override public string ToString() {
-			string str = $"[On <i>{this.getUpdateStage()}</i>] {this.GetType()}";
+			string str = $"[On <i>{this.updateStage}</i>] {this.GetType()}";
 			if (callerInfo != null) {
 				str = callerInfo.ToString() + ": " + str;
 			}

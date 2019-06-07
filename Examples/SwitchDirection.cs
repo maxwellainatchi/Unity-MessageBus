@@ -12,9 +12,7 @@ public class SwitchDirection : MonoBehaviour {
 		public class Handler : Messaging.Handler<ShouldChange> {
 			// The RigidBody required to get/set the angular velocity.
 			public Rigidbody rb;
-			// IMPORTANT: overriding the MessageHandler<T> constructor, you need to call the superconstructor!
-			// Otherwise it won't register itself on the main MessageBus.
-			public Handler(Rigidbody rb) : base() {
+			public Handler(Rigidbody rb) {
 				this.rb = rb;
 			}
 

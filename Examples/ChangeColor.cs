@@ -20,9 +20,7 @@ public class ChangeColor : MonoBehaviour {
 		public class SetColorHandler : Messaging.Handler<ShouldChange> {
 			// It requires a renderer to change the color.
 			public Renderer renderer;
-			// IMPORTANT: overriding the MessageHandler<T> constructor, you need to call the superconstructor!
-			// Otherwise it won't register itself on the main MessageBus.
-			public SetColorHandler(Renderer renderer) : base() {
+			public SetColorHandler(Renderer renderer) {
 				this.renderer = renderer;
 			}
 
@@ -35,7 +33,7 @@ public class ChangeColor : MonoBehaviour {
 		public class SetIndexHandler : Messaging.Handler<ShouldChange> {
 			public Dropdown dropdown;
 
-			public SetIndexHandler(Dropdown dropdown) : base() {
+			public SetIndexHandler(Dropdown dropdown) {
 				this.dropdown = dropdown;
 			}
 

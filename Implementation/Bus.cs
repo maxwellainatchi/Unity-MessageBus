@@ -58,7 +58,7 @@ namespace Messaging {
 		 *  intents and purposes.
 		 */
 		public void _emit(Message.IMessage msg) {
-			var stage = msg.getUpdateStage();
+			var stage = msg.updateStage;
 			if (stage == UpdateStage.Immediate) {
 				this._sendMessageToHandlers(msg);
 			} else {
@@ -91,7 +91,7 @@ namespace Messaging {
 				foreach (IHandler handler in this.handlers[msg.GetType()]) {
 					runHandler(handler);
 				}
-			} else if (msg.requireListener() == Message.IMessage.RequireListenerOption.Typed) {
+			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Typed) {
 				errorHandler(new System.Exception("No specific listener for message " + msg.GetType().Name));
 			}
 			if (this.handlers.ContainsKey(typeof(Message.Any))) {
@@ -99,11 +99,11 @@ namespace Messaging {
 				foreach (IHandler handler in this.handlers[typeof(Message.Any)]) {
 					runHandler(handler);
 				}
-			} else if (msg.requireListener() == Message.IMessage.RequireListenerOption.Untyped) {
+			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Untyped) {
 				errorHandler(new System.Exception("No generic listener for message " + msg.GetType().Name));
 			}
 
-			if (msg.requireListener() == Message.IMessage.RequireListenerOption.Any && !didHaveHandler) {
+			if (msg.requireListener == Message.IMessage.RequireListenerOption.Any && !didHaveHandler) {
 				errorHandler(new System.Exception("No listener for message " + msg.GetType().Name));
 			}
 		}

@@ -1,7 +1,7 @@
 namespace Messaging.Message {
 	namespace Info {
 		public abstract class InfoBase : IMessage {
-			override public UpdateStage getUpdateStage() { return UpdateStage.Immediate; }
+			override public UpdateStage updateStage { get { return UpdateStage.Immediate; } }
 			public int level { get; }
 			public object caller;
 			public string message;
