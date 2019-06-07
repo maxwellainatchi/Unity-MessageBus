@@ -30,10 +30,10 @@ public class ChangeColor : MonoBehaviour {
 			}
 		}
 
+		// This handler sets the index of the dropdown to the current color
 		public class SetIndexHandler : Messaging.Handler<ShouldChange> {
 			public Dropdown dropdown;
-
-			public SetIndexHandler(Dropdown dropdown) {
+			public SetIndexHandler(Dropdown dropdown)  {
 				this.dropdown = dropdown;
 			}
 
@@ -64,6 +64,7 @@ public class ChangeColor : MonoBehaviour {
 		}
 	}
 
+	// if this is attached to a dropdown, make sure it stays updated with the color.
 	private Messaging.Handler<ShouldChange> dropdownHandler;
 	private void Awake() {
 		Dropdown dropdown = this.GetComponent<Dropdown>();
@@ -79,6 +80,7 @@ public class ChangeColor : MonoBehaviour {
 		/*if (index == 2)*/return Color.blue;
 	}
 
+	// Returns the dropdown associated with the given color.
 	public static int indexForColor(Color color) {
 		 if (color == Color.red) return 0;
 		 if (color == Color.green) return 1;

@@ -11,9 +11,7 @@ namespace Messaging.Message {
 		public virtual Bus defaultBus { get { return Bus.main; } }
 
 		public void emitSelf(Bus bus = null, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
-			if (bus == null) {
-				bus = this.defaultBus;
-			}
+			bus = bus ?? this.defaultBus;
 			this._registerCallerInfo(line, file, funcName);
 			bus._emit(this);
 		}

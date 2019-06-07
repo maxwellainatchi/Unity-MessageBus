@@ -10,7 +10,7 @@ namespace Messaging {
 	public abstract class Handler<T> : IHandler<T> where T : Message.IMessage {
 		Bus bus;
 		public Handler(Bus bus = null) {
-			this.bus = bus != null ? bus : Bus.main;
+			this.bus = bus ?? Bus.main;
 			this.bus.register<T>(this);
 		}
 

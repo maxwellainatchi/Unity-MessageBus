@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System;
 
 namespace Messaging {
 	public partial class Bus {
 		public static readonly Bus main = new Bus();
 
-		public List<System.Action<System.Exception, Message.IMessage>> errorHandlers = new List<System.Action<System.Exception, Message.IMessage>>();
-		public Dictionary<System.Type, List<IHandler>> handlers = new Dictionary<System.Type, List<IHandler>>();
+		public List<Action<Exception, Message.IMessage>> errorHandlers = new List<Action<Exception, Message.IMessage>>();
+		public Dictionary<Type, List<IHandler>> handlers = new Dictionary<Type, List<IHandler>>();
 
 		// MARK: register/unregister
 
@@ -18,9 +19,9 @@ namespace Messaging {
 			this.registerUnsafely(typeof(T), handler);
 		}
 
-		public void registerUnsafely(System.Type type, IHandler handler) {
+		public void registerUnsafely(Type type, IHandler handler) {
 			if (!(type.IsSubclassOf(typeof(Message.IMessage)))) {
-				throw new System.Exception("Can't register to a type that's not a subclass of Message.IMessage!");
+				throw new Exception("Can't register to a type that's not a subclass of Message.IMessage!");
 			}
 			if (!this.handlers.ContainsKey(type)) {
 				this.handlers[type] = new List<IHandler>();
@@ -36,9 +37,9 @@ namespace Messaging {
 			this.deregisterUnsafely(typeof(T), handler);
 		}
 
-		public void deregisterUnsafely(System.Type type, IHandler handler) {
+		public void deregisterUnsafely(Type type, IHandler handler) {
 			if (!(type.IsSubclassOf(typeof(Message.IMessage)))) {
-				throw new System.Exception();
+				throw new Exception();
 			}
 			if (this.handlers.ContainsKey(type)) {
 				this.handlers[type].Remove(handler);
@@ -71,13 +72,13 @@ namespace Messaging {
 		 */
 		public void _sendMessageToHandlers(Message.IMessage msg) {
 			msg.callerInfo.sentAt = System.DateTime.Now;
-			System.Action<System.Exception> errorHandler = (exception) => {
+			Action<Exception> errorHandler = (exception) => {
 				foreach (var handler in this.errorHandlers) {
 					handler(exception, msg);
 				} // TODO: Handle errors better
 			};
 
-			System.Action<IHandler> runHandler = (handler) => {
+			Action<IHandler> runHandler = (handler) => {
 				try {
 					handler.handleMessage(msg);
 				} catch (System.Exception err) {
@@ -92,7 +93,7 @@ namespace Messaging {
 					runHandler(handler);
 				}
 			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Typed) {
-				errorHandler(new System.Exception("No specific listener for message " + msg.GetType().Name));
+				errorHandler(new Exception("No specific listener for message " + msg.GetType().Name));
 			}
 			if (this.handlers.ContainsKey(typeof(Message.Any))) {
 				didHaveHandler = true;
@@ -100,11 +101,11 @@ namespace Messaging {
 					runHandler(handler);
 				}
 			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Untyped) {
-				errorHandler(new System.Exception("No generic listener for message " + msg.GetType().Name));
+				errorHandler(new Exception("No generic listener for message " + msg.GetType().Name));
 			}
 
 			if (msg.requireListener == Message.IMessage.RequireListenerOption.Any && !didHaveHandler) {
-				errorHandler(new System.Exception("No listener for message " + msg.GetType().Name));
+				errorHandler(new Exception("No listener for message " + msg.GetType().Name));
 			}
 		}
 	}
