@@ -301,7 +301,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 85998169}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a4522c2c6a998849bf39217f4c53421, type: 3}
+  m_Script: {fileID: 11500000, guid: a7d1cee85bcc04b429dcad510b777965, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!54 &85998175
@@ -1277,7 +1277,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1396061293}
         m_MethodName: ShouldChangeColor
-        m_Mode: 0
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1335,7 +1335,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1396061288}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a410c6fec90afaf4689750c929cc5017, type: 3}
+  m_Script: {fileID: 11500000, guid: 022dd75557d9ed640b221dd80db7c9e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1444748650
@@ -1543,7 +1543,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1475102959}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cbe6469852c6234f9265b5b0ba89536, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c83d0b4dbab04243aae213da938bea7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1542320950
@@ -1868,7 +1868,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1638900893}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a410c6fec90afaf4689750c929cc5017, type: 3}
+  m_Script: {fileID: 11500000, guid: 022dd75557d9ed640b221dd80db7c9e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1758202910

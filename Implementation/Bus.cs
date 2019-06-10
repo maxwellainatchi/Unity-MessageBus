@@ -7,7 +7,7 @@ namespace Messaging {
 		public static readonly Bus main = new Bus();
 
 		public List<Action<Exception, Message.IMessage>> errorHandlers = new List<Action<Exception, Message.IMessage>>();
-		public Dictionary<Type, List<IHandler>> handlers = new Dictionary<Type, List<IHandler>>();
+		public Dictionary<Type, List<WeakReference<IHandler>>> handlers = new Dictionary<Type, List<WeakReference<IHandler>>>();
 
 		// MARK: register/unregister
 
@@ -24,9 +24,9 @@ namespace Messaging {
 				throw new Exception("Can't register to a type that's not a subclass of Message.IMessage!");
 			}
 			if (!this.handlers.ContainsKey(type)) {
-				this.handlers[type] = new List<IHandler>();
+				this.handlers[type] = new List<WeakReference<IHandler>>();
 			}
-			this.handlers[type].Add(handler);
+			this.handlers[type].Add(new WeakReference<IHandler>(handler));
 		}
 
 		public void deregister<T>(IHandler<T> handler) where T : Message.IMessage {
@@ -42,9 +42,8 @@ namespace Messaging {
 				throw new Exception();
 			}
 			if (this.handlers.ContainsKey(type)) {
-				this.handlers[type].Remove(handler);
+				this.handlers[type].RemoveAll(item => item.TryGetTarget() == handler);
 			}
-
 		}
 
 		public void emit(Message.IMessage msg, [CallerLineNumber] int line = 0, [CallerFilePath] string file = "", [CallerMemberName] string funcName = "") {
@@ -78,7 +77,9 @@ namespace Messaging {
 				} // TODO: Handle errors better
 			};
 
-			Action<IHandler> runHandler = (handler) => {
+			Action<WeakReference<IHandler>> runHandler = (handlerRef) => {
+				IHandler handler;
+				if (!handlerRef.TryGetTarget(out handler)) return;
 				try {
 					handler.handleMessage(msg);
 				} catch (System.Exception err) {
@@ -89,16 +90,17 @@ namespace Messaging {
 			bool didHaveHandler = false;
 			if (this.handlers.ContainsKey(msg.GetType())) {
 				didHaveHandler = true;
-				foreach (IHandler handler in this.handlers[msg.GetType()]) {
-					runHandler(handler);
+				foreach (WeakReference<IHandler> handlerRef in this.handlers[msg.GetType()]) {
+					runHandler(handlerRef);
 				}
 			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Typed) {
 				errorHandler(new Exception("No specific listener for message " + msg.GetType().Name));
 			}
 			if (this.handlers.ContainsKey(typeof(Message.Any))) {
 				didHaveHandler = true;
-				foreach (IHandler handler in this.handlers[typeof(Message.Any)]) {
-					runHandler(handler);
+				
+				foreach (WeakReference<IHandler> handlerRef in this.handlers[typeof(Message.Any)]) {
+					runHandler(handlerRef);
 				}
 			} else if (msg.requireListener == Message.IMessage.RequireListenerOption.Untyped) {
 				errorHandler(new Exception("No generic listener for message " + msg.GetType().Name));
